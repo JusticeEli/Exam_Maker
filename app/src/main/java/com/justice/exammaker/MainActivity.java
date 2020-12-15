@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -17,6 +18,8 @@ import android.database.Cursor;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageView;
 
 import androidx.core.app.ActivityCompat;
@@ -71,6 +74,30 @@ public class MainActivity extends AppCompatActivity {
         setUpScrollToDelete();
         //  startDirectoryPickerOne();
         //  displayPhotos();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.main_menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+         switch (item.getItemId()){
+            case R.id.answersItem:
+                startActivity(new Intent(this,ExamAnswersActivity.class));
+
+                break;
+            case R.id.markItem:
+
+                break;
+
+        }
+        return super.onOptionsItemSelected(item);
+
+
     }
 
     private void setUpScrollToDelete() {
@@ -239,77 +266,57 @@ public class MainActivity extends AppCompatActivity {
         }
 
         protected Bitmap doInBackground(String... image_path) {
-            String path = image_path[0];
+            String imgUrl = image_path[0];
             Log.d(TAG, "doInBackground: image rotating has started...");
 
-            BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-            bitmapOptions.inSampleSize = 4;
-            Bitmap bmOriginal = BitmapFactory.decodeFile(path, bitmapOptions);
-
-            Matrix matrix = new Matrix();
-
-            rotateImage(matrix);
-            bmOriginal = Bitmap.createBitmap(bmOriginal, 0, 0, bmOriginal.getWidth(), bmOriginal.getHeight(), matrix, true);
-
-            File file = new File(path);
-            if (file.exists()) {
-                Log.d(TAG, "doInBackground: file exists");
-                if (file.delete()) {
-                    Log.d(TAG, "doInBackground: file deletion success ");
-                } else {
-                    Log.d(TAG, "doInBackground: Error: deletion failed");
-                }
-            } else {
-                Log.d(TAG, "doInBackground: Error file does not exist");
-            }
-            File newFile = new File(path);
-
-            try (FileOutputStream out = new FileOutputStream(newFile)) {
-                int index = path.lastIndexOf(".");
-                if (path.substring(index).toLowerCase().equals("png")) {
-                    bmOriginal.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-                    // PNG is a lossless format, the compression factor (100) is ignored
-                    Log.d(TAG, "doInBackground: bitmap converted to png");
-                } else {
-                    bmOriginal.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                    Log.d(TAG, "doInBackground: bitmap converted to jpeg");
-                }
+            ExifInterface exif = null;
+            try {
+                exif = new ExifInterface(imgUrl);
             } catch (IOException e) {
-                Log.d(TAG, "doInBackground: ERROR: " + e.getMessage());
             }
 
-
-            return bmOriginal;
-        }
-
-        private void rotateImage(Matrix matrix) {
+            int rotation = 0;
             switch (rotateCounter) {
                 case 0:
-                    matrix.postRotate(90);
-
+                    rotation = 0;
                     break;
                 case 1:
-                    matrix.postRotate(180);
-
+                    rotation = 90;
                     break;
                 case 2:
-                    matrix.postRotate(270);
-
+                    rotation = 180;
                     break;
                 case 3:
-                    matrix.postRotate(360);
-
+                    rotation = 270;
                     break;
             }
+            Matrix matrix = new Matrix();
+            matrix.postRotate(rotation);
+
+            Bitmap bitmap  = BitmapFactory.decodeFile(imgUrl);
+            //rotate image
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+                    bitmap.getHeight(), matrix, true);
+
+
+            Log.d(TAG, "doInBackground: rotate count"+rotateCounter);
+            return bitmap;
 
         }
+
+
 
         protected void onPostExecute(Bitmap result) {
             Log.d(TAG, "onPostExecute: image rotated");
             myImageView.setImageBitmap(result);
             recyclerViewAdapter.notifyItemChanged(position);
+            Log.d(TAG, "onPostExecute: rotate count"+rotateCounter);
         }
     }
+
+
+    
+
 }
 
 

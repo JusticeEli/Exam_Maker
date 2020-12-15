@@ -24,6 +24,8 @@ import java.io.IOException;
 
 public class ImageTextReader {
     private static final String TAG = "ImageTextReader";
+static      FirebaseVisionText mfirebaseVisionText;
+static ImageTextActivity imageTextActivity;
 
     //get orientation of an image from exif data of image
     //and perform rotation as required to make it upright
@@ -71,7 +73,7 @@ public class ImageTextReader {
     //on-device api
     public static void readTextFromImage(Bitmap bitmap, final TextView textView){
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
-
+        final FirebaseVisionText[] firebaseVisionTextReturn = new FirebaseVisionText[1];
         FirebaseVisionTextRecognizer textRecognizer  = FirebaseVision.getInstance()
                 .getOnDeviceTextRecognizer();
         Log.d(TAG, "readTextFromImage: started reading text from image");
@@ -82,7 +84,7 @@ public class ImageTextReader {
                             public void onSuccess(FirebaseVisionText firebaseVisionText) {
                                 Log.d(TAG, "onSuccess:  success reading text");
                                 setDataOnTextview(textView,firebaseVisionText);
-                             }
+                                imageTextActivity.firebaseVisionText=firebaseVisionText;             }
                         })
                         .addOnFailureListener(
                                 new OnFailureListener() {
@@ -92,6 +94,9 @@ public class ImageTextReader {
 
                                     }
                                 });
+
+        Log.d(TAG, "readTextFromImage: returned firebase vision text");
+
 
     }
     private static void setDataOnTextview(TextView textview, FirebaseVisionText firebaseVisionText){
@@ -108,5 +113,10 @@ public class ImageTextReader {
 
         textview.setText(firebaseVisionText.getText());
 
+    }
+
+
+    public static void passContext(ImageTextActivity mimageTextActivity) {
+       imageTextActivity=mimageTextActivity;
     }
 }

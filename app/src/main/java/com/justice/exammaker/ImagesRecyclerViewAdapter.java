@@ -73,8 +73,10 @@ public class ImagesRecyclerViewAdapter extends
 
             private void rotateImage() {
 
-                holder.rotateCounter%=4;
+                ++holder.rotateCounter;
+                holder.rotateCounter %=4;
                 new MainActivity.ImageRotator(position,holder.image,holder.rotateCounter).execute(imagePath);
+
 
             }
         });

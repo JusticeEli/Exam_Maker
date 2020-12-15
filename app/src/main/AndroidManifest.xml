@@ -3,16 +3,20 @@
     package="com.justice.exammaker">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
+        android:name=".MyApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ImageTextActivity"></activity>
-        <activity android:name=".MainActivity"
+        <activity android:name=".ExamAnswersActivity"></activity>
+        <activity android:name=".ImageTextActivity" />
+        <activity
+            android:name=".MainActivity"
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,6 +28,9 @@
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
             android:value="ocr" />
+        <meta-data
+            android:name="com.firebase.ml.cloud.ApiKeyForDebug"
+            android:value="AIzaSyDcSQjZYm0-RFYmiI5XyM-j-d7rlN-YQO4" />
     </application>
 
 </manifest>
